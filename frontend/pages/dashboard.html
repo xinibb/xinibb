@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欧易量化交易系统</title>
+    <link href="/static/css/style.css" rel="stylesheet">
+    <script src="/static/js/app.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1>🚀 欧易量化交易系统</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="/pages/dashboard.html" class="nav-link active">仪表盘</a>
+                <a href="/pages/trading.html" class="nav-link">交易</a>
+                <a href="/pages/market.html" class="nav-link">行情</a>
+                <a href="/pages/assets.html" class="nav-link">资产管理</a>
+                <a href="/pages/settings.html" class="nav-link">设置</a>
+            </div>
+            <div class="nav-user">
+                <span id="trade-mode-badge" class="badge">模拟交易</span>
+            </div>
+        </nav>
+
+        <!-- 主要内容 -->
+        <main class="main-content">
+            <!-- 顶部统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <div class="stat-label">总资产</div>
+                        <div class="stat-value" id="total-equity">$10,000.00</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <div class="stat-label">今日盈亏</div>
+                        <div class="stat-value" id="daily-pnl">$0.00</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-info">
+                        <div class="stat-label">持仓数量</div>
+                        <div class="stat-value" id="position-count">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-info">
+                        <div class="stat-label">风险等级</div>
+                        <div class="stat-value risk-low" id="risk-level">低</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中间区域 -->
+            <div class="content-grid">
+                <!-- 持仓列表 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>持仓列表</h3>
+                        <button class="btn btn-sm" onclick="refreshPositions()">刷新</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>交易对</th>
+                                    <th>方向</th>
+                                    <th>数量</th>
+                                    <th>开仓价</th>
+                                    <th>当前价</th>
+                                    <th>盈亏</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="positions-table">
+                                <tr>
+                                    <td colspan="7" class="empty-text">暂无持仓</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 订单列表 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>待成交订单</h3>
+                        <button class="btn btn-sm" onclick="refreshOrders()">刷新</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>交易对</th>
+                                    <th>方向</th>
+                                    <th>数量</th>
+                                    <th>价格</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table">
+                                <tr>
+                                    <td colspan="6" class="empty-text">暂无待成交订单</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快捷交易 -->
+            <div class="quick-trade card">
+                <div class="card-header">
+                    <h3>快捷交易</h3>
+                </div>
+                <div class="card-body">
+                    <div class="trade-form">
+                        <div class="form-group">
+                            <label>交易对</label>
+                            <select id="trade-symbol">
+                                <option value="BTC-USDT">BTC/USDT</option>
+                                <option value="ETH-USDT">ETH/USDT</option>
+                                <option value="SOL-USDT">SOL/USDT</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>方向</label>
+                            <div class="btn-group">
+                                <button class="btn btn-success active" onclick="setTradeSide('buy')">买入</button>
+                                <button class="btn btn-danger" onclick="setTradeSide('sell')">卖出</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>数量</label>
+                            <input type="number" id="trade-amount" placeholder="请输入数量" step="0.001">
+                        </div>
+                        <div class="form-group">
+                            <label>价格（留空则为市价单）</label>
+                            <input type="number" id="trade-price" placeholder="市价单留空" step="0.01">
+                        </div>
+                        <button class="btn btn-primary btn-block" onclick="submitOrder()">下单</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshDashboard();
+            setInterval(refreshDashboard, 5000); // 每5秒刷新
+        });
+
+        // 刷新仪表盘
+        async function refreshDashboard() {
+            await Promise.all([
+                refreshAccount(),
+                refreshPositions(),
+                refreshOrders(),
+                refreshRiskStatus()
+            ]);
+        }
+
+        // 刷新账户信息
+        async function refreshAccount() {
+            try {
+                const response = await fetch('/api/account/info');
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('total-equity').textContent = 
+                        '$' + data.data.total_equity.toFixed(2);
+                    document.getElementById('daily-pnl').textContent = 
+                        '$' + data.data.total_realized_pnl.toFixed(2);
+                }
+            } catch (error) {
+                console.error('刷新账户失败:', error);
+            }
+        }
+
+        // 刷新持仓
+        async function refreshPositions() {
+            try {
+                const response = await fetch('/api/account/positions');
+                const data = await response.json();
+                if (data.success) {
+                    const tbody = document.getElementById('positions-table');
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="empty-text">暂无持仓</td></tr>';
+                    } else {
+                        tbody.innerHTML = data.data.map(pos => `
+                            <tr>
+                                <td>${pos.symbol}</td>
+                                <td class="${pos.side === 'long' ? 'text-success' : 'text-danger'}">${pos.side === 'long' ? '多' : '空'}</td>
+                                <td>${pos.amount}</td>
+                                <td>${pos.average_price.toFixed(2)}</td>
+                                <td>${pos.current_price.toFixed(2)}</td>
+                                <td class="${pos.unrealized_pnl >= 0 ? 'text-success' : 'text-danger'}">${pos.unrealized_pnl.toFixed(2)}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" onclick="closePosition('${pos.symbol}')">平仓</button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                    document.getElementById('position-count').textContent = data.data.length;
+                }
+            } catch (error) {
+                console.error('刷新持仓失败:', error);
+            }
+        }
+
+        // 刷新订单
+        async function refreshOrders() {
+            try {
+                const response = await fetch('/api/trading/orders?status=pending');
+                const data = await response.json();
+                if (data.success) {
+                    const tbody = document.getElementById('orders-table');
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="empty-text">暂无待成交订单</td></tr>';
+                    } else {
+                        tbody.innerHTML = data.data.map(order => `
+                            <tr>
+                                <td>${order.symbol}</td>
+                                <td class="${order.side === 'buy' ? 'text-success' : 'text-danger'}">${order.side === 'buy' ? '买入' : '卖出'}</td>
+                                <td>${order.amount}</td>
+                                <td>${order.price || '市价'}</td>
+                                <td>${order.status}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning" onclick="cancelOrder('${order.order_id}', '${order.symbol}')">撤单</button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('刷新订单失败:', error);
+            }
+        }
+
+        // 刷新风控状态
+        async function refreshRiskStatus() {
+            try {
+                const response = await fetch('/api/risk/status');
+                const data = await response.json();
+                if (data.success) {
+                    const riskEl = document.getElementById('risk-level');
+                    riskEl.textContent = data.data.risk_level === 'low' ? '低' : 
+                                         data.data.risk_level === 'medium' ? '中' : '高';
+                    riskEl.className = `stat-value risk-${data.data.risk_level}`;
+                }
+            } catch (error) {
+                console.error('刷新风控状态失败:', error);
+            }
+        }
+
+        // 平仓
+        async function closePosition(symbol) {
+            if (!confirm(`确定平仓 ${symbol}？`)) return;
+            
+            try {
+                const response = await fetch('/api/account/positions');
+                const data = await response.json();
+                const position = data.data.find(p => p.symbol === symbol);
+                
+                if (position) {
+                    const order = {
+                        symbol: symbol,
+                        side: position.side === 'long' ? 'sell' : 'buy',
+                        order_type: 'market',
+                        amount: position.amount
+                    };
+                    
+                    const createResponse = await fetch('/api/trading/order', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(order)
+                    });
+                    
+                    const result = await createResponse.json();
+                    if (result.success) {
+                        alert('平仓成功');
+                        refreshDashboard();
+                    } else {
+                        alert('平仓失败: ' + result.message);
+                    }
+                }
+            } catch (error) {
+                alert('平仓失败: ' + error.message);
+            }
+        }
+
+        // 撤单
+        async function cancelOrder(orderId, symbol) {
+            if (!confirm('确定撤销此订单？')) return;
+            
+            try {
+                const response = await fetch(`/api/trading/order/${orderId}?symbol=${symbol}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('撤单成功');
+                    refreshOrders();
+                } else {
+                    alert('撤单失败: ' + data.message);
+                }
+            } catch (error) {
+                alert('撤单失败: ' + error.message);
+            }
+        }
+
+        // 设置交易方向
+        let currentTradeSide = 'buy';
+        function setTradeSide(side) {
+            currentTradeSide = side;
+            document.querySelectorAll('.btn-group .btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // 提交订单
+        async function submitOrder() {
+            const symbol = document.getElementById('trade-symbol').value;
+            const amount = parseFloat(document.getElementById('trade-amount').value);
+            const price = parseFloat(document.getElementById('trade-price').value) || null;
+            
+            if (!amount || amount <= 0) {
+                alert('请输入有效的数量');
+                return;
+            }
+            
+            const order = {
+                symbol: symbol,
+                side: currentTradeSide,
+                order_type: price ? 'limit' : 'market',
+                amount: amount,
+                price: price
+            };
+            
+            try {
+                const response = await fetch('/api/trading/order', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(order)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('下单成功');
+                    document.getElementById('trade-amount').value = '';
+                    document.getElementById('trade-price').value = '';
+                    refreshDashboard();
+                } else {
+                    alert('下单失败: ' + data.message);
+                }
+            } catch (error) {
+                alert('下单失败: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

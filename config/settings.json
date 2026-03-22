@@ -1,0 +1,24 @@
+{
+  "trade_mode": "simulated",
+  "initial_capital": 10000.0,
+  "default_symbol": "BTC-USDT",
+  "enable_notification": false,
+  "notification": {
+    "email": {
+      "smtp_server": "smtp.gmail.com",
+      "smtp_port": 587,
+      "sender": "",
+      "password": "",
+      "recipients": []
+    },
+    "wechat_webhook": "",
+    "feishu_webhook": ""
+  },
+  "risk": {
+    "max_position_ratio": 0.3,
+    "stop_loss_percent": 0.05,
+    "take_profit_percent": 0.15,
+    "max_order_amount": 1000,
+    "max_daily_loss": 0.1
+  }
+}

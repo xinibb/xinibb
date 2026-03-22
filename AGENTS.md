@@ -1,8 +1,46 @@
 # 欧易量化交易工作流系统
 
+> **⚠️ 系统要求**: 本系统仅支持 Linux/Mac 环境，不支持 Windows
+
 ## 项目概述
 - **名称**: 欧易量化交易系统（OKX Quantitative Trading System）
 - **功能**: 基于剥头皮策略的自动化量化交易工作流，支持行情监控、策略决策、风险管理、交易执行和多渠道通知
+
+## 🚀 快速开始
+
+### 安装依赖
+
+**首次运行前，必须安装所有依赖！**
+
+#### 方法一：使用安装脚本（推荐）
+
+```bash
+chmod +x scripts/install_deps.sh
+./scripts/install_deps.sh
+```
+
+#### 方法二：手动安装
+```bash
+pip install cozeloop==0.1.25 coze-coding-dev-sdk==0.5.11 coze-coding-utils==0.2.4 coze-workload-identity==0.1.4
+pip install langgraph==1.0.2 langchain==1.0.3 fastapi uvicorn requests pydantic jinja2
+```
+
+#### 方法三：完整安装
+```bash
+pip install -r requirements.txt
+```
+
+### 验证安装
+```bash
+python -c "import cozeloop; print('✅ 安装成功')"
+```
+
+### 启动服务
+```bash
+python src/main.py
+```
+
+**详细安装指南请查看**: [QUICKSTART.md](QUICKSTART.md)
 
 ## 核心特性
 - ✅ 实时行情监控（欧易API）
@@ -164,6 +202,11 @@ config/
 
 ## 更新日志
 
+### v1.0.1 (2026-03-22)
+- ✅ 添加依赖安装脚本（Linux/Mac）
+- ✅ 添加快速开始指南
+- ✅ 明确系统要求（仅支持 Linux/Mac）
+
 ### v1.0.0 (2026-03-20)
 - ✅ 完成基础工作流搭建
 - ✅ 实现剥头皮策略决策
@@ -180,3 +223,10 @@ config/
 4. **数据持久化**: 添加交易历史记录和数据分析
 5. **Web界面**: 开发可视化的交易监控面板
 6. **回测系统**: 实现历史数据回测功能
+
+## 系统要求
+
+- **操作系统**: Linux / macOS（不支持 Windows）
+- **Python**: 3.10 或更高版本
+- **内存**: 建议 4GB 以上
+- **网络**: 需要稳定的网络连接访问欧易API

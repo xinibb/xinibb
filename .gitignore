@@ -1,48 +1,121 @@
-node_modules
-dist
-.DS_Store
-*.swp
-.git/*
+# Python
 __pycache__/
-*.pyc
-.venv/*
-*.o
-*.a
-/vendor
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 *.egg-info/
-/.env
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+*.out
+
+# Environment Variables
 .env
+.env.local
+.env.*.local
 
-# 视频文件
-*.mp4
-*.avi
-*.mov
-*.wmv
-*.flv
-*.mkv
-*.webm
-*.m4v
-*.mpeg
-*.mpg
-*.3gp
-*.f4v
-*.rmvb
-*.vob
+# Database
+*.db
+*.sqlite
+*.sqlite3
 
-# 归档文件
-*.iso
-*.dmg
-*.rar
-*.zip
-*.gz
+# Cache
+.cache/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
 
-# 文档类也默认加入
-*.pdf
-*.docx
-*.doc
-*.xlsx
-*.xls
-*.ppt
-*.pptx
-*.xlsx
-*.csv
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Distribution
+.pypi/
+*.manifest
+*.spec
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# 忽略所有MD文档文件（合并到COMPLETE_DOCS.md）
+*.md
+
+# 但保留COMPLETE_DOCS.md（合并后的完整文档）
+!COMPLETE_DOCS.md
+
+# 忽略临时文件
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# 忽略配置文件中的敏感信息
+config/secrets.json
+config/api_keys.json
+config/.env
+
+# 忽略测试输出
+test_output/
+test_results/
+
+# 忽略构建产物
+dist/
+build/
+*.egg-info/
+
+# 忽略node_modules（如果有前端资源）
+node_modules/
+
+# 忽略包管理器文件
+package-lock.json
+yarn.lock
+Pipfile.lock
